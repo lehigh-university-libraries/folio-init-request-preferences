@@ -186,17 +186,23 @@ def process_users(
             existing = get_existing_prefs(fc, user_id)
             if existing is None:
                 barcode = user.get("barcode", "N/A")
-                group_name = patron_group_map.get(user.get("patronGroup", ""), "unknown")
+                group_name = patron_group_map.get(
+                    user.get("patronGroup", ""), "unknown"
+                )
                 if report_only:
                     log.info(
                         "[REPORT ONLY] Would create preferences for user %s (barcode=%s group=%s)",
-                        user_id, barcode, group_name,
+                        user_id,
+                        barcode,
+                        group_name,
                     )
                 else:
                     post_prefs(fc, user_id, desired)
                     log.info(
                         "Created preferences for user %s (barcode=%s group=%s)",
-                        user_id, barcode, group_name,
+                        user_id,
+                        barcode,
+                        group_name,
                     )
                 created += 1
             elif prefs_differ(existing, desired):
@@ -242,7 +248,9 @@ def compute_desired_prefs(
 
 
 def get_existing_prefs(fc: FolioClient, user_id: str) -> dict | None:
-    prefs = fc.folio_get(PREFS_PATH, key="requestPreferences", query=f"userId=={user_id}")
+    prefs = fc.folio_get(
+        PREFS_PATH, key="requestPreferences", query=f"userId=={user_id}"
+    )
     return prefs[0] if prefs else None
 
 
@@ -284,10 +292,12 @@ def main() -> None:
         sys.exit(1)
 
     prefs_cfg = config["preferences"]
-    privileged_group_ids, campus_address_type_id, patron_group_map = fetch_reference_data(
-        fc,
-        prefs_cfg["privileged_patron_groups"],
-        prefs_cfg["campus_address_type"],
+    privileged_group_ids, campus_address_type_id, patron_group_map = (
+        fetch_reference_data(
+            fc,
+            prefs_cfg["privileged_patron_groups"],
+            prefs_cfg["campus_address_type"],
+        )
     )
 
     state_path = script_dir / config["state_file"]
@@ -318,7 +328,12 @@ def main() -> None:
             sys.exit(1)
         log.info("Fetched %d user(s)", len(users))
         c, u, s, e = process_users(
-            fc, users, privileged_group_ids, campus_address_type_id, patron_group_map, args.report_only
+            fc,
+            users,
+            privileged_group_ids,
+            campus_address_type_id,
+            patron_group_map,
+            args.report_only,
         )
         total_created, total_updated, total_skipped, total_errored = c, u, s, e
         if not args.report_only:

@@ -1,0 +1,19 @@
+name: lint
+on:
+  push:
+    branches:
+      - "**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: psf/black@c6755bb741b6481d6b3d3bb563c83fa060db96c9 # stable
+        with:
+          options: "--check --verbose"
