@@ -26,6 +26,7 @@ def setup_logging() -> None:
         format="%(asctime)s %(levelname)s %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
+    logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 def parse_args() -> argparse.Namespace:
