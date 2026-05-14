@@ -233,12 +233,8 @@ def compute_desired_prefs(
 
 
 def get_existing_prefs(fc: FolioClient, user_id: str) -> dict | None:
-    results = list(
-        fc.folio_get_all(
-            PREFS_PATH, "requestPreferences", f"userId=={user_id}", limit=1
-        )
-    )
-    return results[0] if results else None
+    prefs = fc.folio_get(PREFS_PATH, key="requestPreferences", query=f"userId=={user_id}")
+    return prefs[0] if prefs else None
 
 
 def prefs_differ(existing: dict, desired: dict) -> bool:
