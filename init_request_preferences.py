@@ -105,10 +105,11 @@ def fetch_reference_data(
     fc: FolioClient,
     privileged_group_names: list[str],
     campus_address_type_name: str,
-) -> tuple[set[str], str]:
+) -> tuple[set[str], str, dict[str, str]]:
     groups = list(
         fc.folio_get_all("/groups", "usergroups", "cql.allRecords=1", limit=500)
     )
+    patron_group_map = {g["id"]: g["group"] for g in groups}
     privileged_group_ids = {
         g["id"] for g in groups if g["group"] in privileged_group_names
     }
@@ -147,7 +148,7 @@ def fetch_reference_data(
         campus_address_type_id,
     )
 
-    return privileged_group_ids, campus_address_type_id
+    return privileged_group_ids, campus_address_type_id, patron_group_map
 
 
 def _fetch_users_for_prefix(fc: FolioClient, prefix: str, limit: int) -> list[dict]:
@@ -171,6 +172,7 @@ def process_users(
     users: list[dict],
     privileged_group_ids: set[str],
     campus_address_type_id: str,
+    patron_group_map: dict[str, str],
     report_only: bool,
 ) -> tuple[int, int, int, int]:
     """Process a list of users. Returns (created, updated, skipped, errored)."""
@@ -183,12 +185,19 @@ def process_users(
             )
             existing = get_existing_prefs(fc, user_id)
             if existing is None:
+                barcode = user.get("barcode", "N/A")
+                group_name = patron_group_map.get(user.get("patronGroup", ""), "unknown")
                 if report_only:
                     log.info(
-                        "[REPORT ONLY] Would create preferences for user %s", user_id
+                        "[REPORT ONLY] Would create preferences for user %s (barcode=%s group=%s)",
+                        user_id, barcode, group_name,
                     )
                 else:
                     post_prefs(fc, user_id, desired)
+                    log.info(
+                        "Created preferences for user %s (barcode=%s group=%s)",
+                        user_id, barcode, group_name,
+                    )
                 created += 1
             elif prefs_differ(existing, desired):
                 if report_only:
@@ -247,7 +256,6 @@ def prefs_differ(existing: dict, desired: dict) -> bool:
 def post_prefs(fc: FolioClient, user_id: str, desired: dict) -> None:
     payload = {"userId": user_id, **desired}
     fc.folio_post(PREFS_PATH, payload)
-    log.info("Created preferences for user %s", user_id)
 
 
 def put_prefs(fc: FolioClient, pref_id: str, user_id: str, desired: dict) -> None:
@@ -276,7 +284,7 @@ def main() -> None:
         sys.exit(1)
 
     prefs_cfg = config["preferences"]
-    privileged_group_ids, campus_address_type_id = fetch_reference_data(
+    privileged_group_ids, campus_address_type_id, patron_group_map = fetch_reference_data(
         fc,
         prefs_cfg["privileged_patron_groups"],
         prefs_cfg["campus_address_type"],
@@ -310,7 +318,7 @@ def main() -> None:
             sys.exit(1)
         log.info("Fetched %d user(s)", len(users))
         c, u, s, e = process_users(
-            fc, users, privileged_group_ids, campus_address_type_id, args.report_only
+            fc, users, privileged_group_ids, campus_address_type_id, patron_group_map, args.report_only
         )
         total_created, total_updated, total_skipped, total_errored = c, u, s, e
         if not args.report_only:
@@ -350,6 +358,7 @@ def main() -> None:
                 batch,
                 privileged_group_ids,
                 campus_address_type_id,
+                patron_group_map,
                 args.report_only,
             )
             total_created += c
