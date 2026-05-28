@@ -20,12 +20,12 @@ For every user processed, the script sets:
 
 - Python 3.10+
 - A FOLIO service account with the following permissions:
-  - Circulation storage - get request preference collection
-  - Circulation storage - post individual request preference
-  - Circulation storage - put individual request preference
-  - Settings (Users): Can view address types
-  - Settings (Users): Can view patron groups
-  - Users: Can view user profile
+  - Circulation storage - get request preference collection (`circulation-storage.request-preferences.collection.get`)
+  - Circulation storage - post individual request preference (`circulation-storage.request-preferences.item.post`)
+  - Circulation storage - put individual request preference (`circulation-storage.request-preferences.item.put`)
+  - Settings (Users): Can view address types (`ui-users.settings.addresstypes.view`)
+  - Settings (Users): Can view patron groups (`ui-users.settings.usergroups.view`)
+  - Users: Can view user profile (`ui-users.view`)
 
 ## Setup
 
