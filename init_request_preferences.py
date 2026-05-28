@@ -365,7 +365,9 @@ def main() -> None:
             else:
                 start = "00"
             prefixes = [f"{n:02d}" for n in range(int(start), 100)]
-            log.info("Init mode: %d prefix batch(es) starting at '%s'", len(prefixes), start)
+            log.info(
+                "Init mode: %d prefix batch(es) starting at '%s'", len(prefixes), start
+            )
 
         for i, prefix in enumerate(prefixes):
             log.info("Batch '%s': starting", prefix)
