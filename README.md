@@ -46,7 +46,7 @@ Process every user account. Must be run before `--mode new_users` is used.
 python init_request_preferences.py --mode all_users
 ```
 
-Due to the number of user records, this processes accounts in batches by the first two characters of the user ID (`00` through `99`). Progress is saved to `state.json` after each batch completes, so if the job is interrupted it can be resumed automatically by re-running the same command.
+Due to the number of user records, this processes accounts in batches by the first two hex characters of the user ID (`00` through `ff`). Progress is saved to `state.json` after each batch completes, so if the job is interrupted it can be resumed automatically by re-running the same command.
 
 To resume from a specific batch (e.g. if you need to skip ahead):
 
