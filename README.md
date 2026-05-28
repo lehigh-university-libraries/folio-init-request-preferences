@@ -54,6 +54,14 @@ To resume from a specific batch (e.g. if you need to skip ahead):
 python init_request_preferences.py --mode all_users --start-prefix 42
 ```
 
+To process a single prefix without touching `state.json` (useful for spot-checks or re-processing one batch):
+
+```bash
+python init_request_preferences.py --mode all_users --prefix 42
+```
+
+`--prefix` and `--start-prefix` are mutually exclusive.
+
 ### Ongoing runs — new users only
 
 Process only accounts created since the last run. Intended to run on a cron schedule (every 15 minutes is typical).
