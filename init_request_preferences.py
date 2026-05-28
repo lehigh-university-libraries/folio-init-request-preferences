@@ -39,11 +39,18 @@ def parse_args() -> argparse.Namespace:
         choices=["all_users", "new_users"],
         help="'all_users' processes every user by ID prefix; 'new_users' processes only users created since the last run",
     )
-    parser.add_argument(
+    prefix_group = parser.add_mutually_exclusive_group()
+    prefix_group.add_argument(
         "--start-prefix",
         default=None,
         metavar="NN",
         help="Two-digit prefix to start from in --mode all_users, overriding saved state (default: resume from state or '00')",
+    )
+    prefix_group.add_argument(
+        "--prefix",
+        default=None,
+        metavar="NN",
+        help="Process only this single two-digit prefix in --mode all_users",
     )
     parser.add_argument(
         "--report-only",
@@ -347,17 +354,20 @@ def main() -> None:
                 state_path,
             )
             sys.exit(1)
-        if args.start_prefix is not None:
-            start = args.start_prefix
-        elif "init_next_prefix" in state:
-            start = state["init_next_prefix"]
+        if args.prefix is not None:
+            prefixes = [args.prefix]
+            log.info("Init mode: single prefix batch '%s'", args.prefix)
         else:
-            start = "00"
-
-        prefixes = [f"{n:02d}" for n in range(int(start), 100)]
-        log.info(
-            "Init mode: %d prefix batch(es) starting at '%s'", len(prefixes), start
-        )
+            if args.start_prefix is not None:
+                start = args.start_prefix
+            elif "init_next_prefix" in state:
+                start = state["init_next_prefix"]
+            else:
+                start = "00"
+            prefixes = [f"{n:02d}" for n in range(int(start), 100)]
+            log.info(
+                "Init mode: %d prefix batch(es) starting at '%s'", len(prefixes), start
+            )
 
         for i, prefix in enumerate(prefixes):
             log.info("Batch '%s': starting", prefix)
@@ -390,7 +400,7 @@ def main() -> None:
                 e,
             )
 
-            if not args.report_only:
+            if not args.report_only and args.prefix is None:
                 is_last = i == len(prefixes) - 1
                 next_state = (
                     {"last_run": run_start_ts}
