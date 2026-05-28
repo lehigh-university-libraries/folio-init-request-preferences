@@ -364,7 +364,7 @@ def main() -> None:
                 start = state["init_next_prefix"]
             else:
                 start = "00"
-            prefixes = [f"{n:02d}" for n in range(int(start), 100)]
+            prefixes = [f"{n:02x}" for n in range(int(start, 16), 256)]
             log.info(
                 "Init mode: %d prefix batch(es) starting at '%s'", len(prefixes), start
             )
