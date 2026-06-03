@@ -233,24 +233,20 @@ def compute_desired_prefs(
     privileged_group_ids: set[str],
     campus_address_type_id: str,
 ) -> dict:
-    patron_group_id = user.get("patronGroup")
-    addresses = user.get("personal", {}).get("addresses", [])
-
+    privileged = user.get("patronGroup") in privileged_group_ids
     desired: dict = {
         "holdShelf": True,
         "fulfillment": "Hold Shelf",
-        "delivery": False,
+        "delivery": privileged,
     }
-
-    if patron_group_id in privileged_group_ids:
+    if privileged:
+        addresses = user.get("personal", {}).get("addresses", [])
         campus_address = next(
             (a for a in addresses if a.get("addressTypeId") == campus_address_type_id),
             None,
         )
         if campus_address is not None:
-            desired["delivery"] = True
             desired["defaultDeliveryAddressTypeId"] = campus_address_type_id
-
     return desired
 
 

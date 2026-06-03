@@ -6,13 +6,13 @@ folio:
 
 preferences:
   # Patron group names (case-sensitive, must match FOLIO "group" field).
-  # Users in these groups get delivery enabled when they have a campus address.
-  # Users in any other group have delivery disabled regardless of their addresses.
+  # Users in these groups have delivery enabled; all others have delivery disabled.
   privileged_patron_groups:
     - "faculty"
     - "staff"
     - "graduate"
   # Address type name (case-sensitive, must match FOLIO "addressType" field).
+  # Used to set defaultDeliveryAddressTypeId for privileged users who have a campus address.
   # The script resolves this to an internal ID at startup and exits if no match is found.
   campus_address_type: "Campus"
 
