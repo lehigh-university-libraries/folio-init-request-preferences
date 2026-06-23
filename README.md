@@ -13,8 +13,8 @@ For every user processed, the script sets:
 | Hold Shelf | Enabled |
 | Fulfillment | Hold Shelf |
 | Default pickup service point | Not set |
-| Delivery | Enabled (faculty, staff, graduate only) |
-| Default delivery address | Campus (if the user has a campus address) |
+| Delivery | Enabled (faculty, staff, graduate with a campus address only) |
+| Default delivery address | Campus (when delivery is enabled) |
 
 ## Requirements
 
